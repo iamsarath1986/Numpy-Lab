@@ -19,29 +19,28 @@ array_data = np.array([
  [14, 10200, 55, 130, 7.3, 80.4 ]
 ])
 
-# This will return the (array([1]),)
-# The first [0] access the first element of the tuple
-# The second [0] access the first element inside that array
-day = 1
+day = 14
 
-if day < 1:
-    print("Day must be greater than 0")
+if not (1 <= day <= array_data.shape[0]):
+    print(f"Day {day} is not valid.")
     exit(1)
 
 row_index = day - 1
 
-day_label_index = np.where(array_labels == "Day")[0][0] # Column index for day
-day_value = array_data[row_index, day_label_index]
+label_map = {label: i for i, label in enumerate(array_labels)}
+day_value = array_data[row_index, label_map['Day']]
+step_value = array_data[row_index, label_map['Steps']] # Step value based on day and label
 
-step_label_index = np.where(array_labels == "Steps")[0][0] # Column index for steps
-step_value = array_data[row_index, step_label_index] # Step value based on day and label
+print(f"On {array_labels[label_map['Day']].lower()} {int(day_value)}, you walked {int(step_value)}"
+      f" {array_labels[label_map['Steps']].lower()}")
 
-print(f"On {array_labels[day_label_index].lower()} {day}, you run {int(step_value)}"
-      f" {array_labels[step_label_index].lower()}")
-#print("")
-#print("1. Basic statistics & slicing")
-#print("")
-#print("Calculate the mean of Steps column:")
+#TODO:: Read the Junie generated about the new changes.
+
+'''
+print("")
+print("1. Basic statistics & slicing")
+print("")
+print("Calculate the mean of Steps column:")
 
 #print(array_data[:, step_label_index].mean(dtype=np.float64))
-
+'''
