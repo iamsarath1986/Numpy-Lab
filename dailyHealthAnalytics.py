@@ -1,5 +1,7 @@
 import numpy as np
 
+np.set_printoptions(precision=2, suppress=True, formatter={'float': '{:.2f}'.format})
+
 array_labels = np.array(["Day", "Steps", "Workout_Minutes", "Avg_Heart_Rate", "Sleep_Hours", "Bodyweight_kg"])
 
 array_data = np.array([
@@ -32,14 +34,18 @@ mask = array_data[:, day_col] == day
 day_value = array_data[mask, label_map['Day']]
 step_value = array_data[mask, label_map['Steps']]
 
-print(f"On {array_labels[label_map['Day']].lower()} {int(day_value[0])}, you walked {int(step_value[0])}"
-      f" {array_labels[label_map['Steps']].lower()}")
-
-'''
 print("")
 print("1. Basic statistics & slicing")
 print("")
-print("Calculate the mean of Steps column:")
+print("Calculate the mean of Steps, Workout minutes, Sleep hours:")
+print("")
+means = array_data.mean(axis=0)
 
-#print(array_data[:, step_label_index].mean(dtype=np.float64))
+print(f"{array_labels[1]}: {means[1]:.2f}")
+print(f"{array_labels[2]}: {means[2]:.2f}")
+print(f"{array_labels[4]}: {means[4]:.2f}")
+
+'''
+print(f"On {array_labels[label_map['Day']].lower()} {int(day_value[0])}, you walked {int(step_value[0])}"
+      f" {array_labels[label_map['Steps']].lower()}")
 '''
