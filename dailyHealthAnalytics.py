@@ -27,80 +27,100 @@ steps = label_map['Steps']
 workout_minutes = label_map['Workout_Minutes']
 sleep_hours = label_map['Sleep_Hours']
 
-while True:
-    print("1. Enter the day number to get the details")
-    print("2. Check the average Steps, Workout minutes, Sleep hours")
-    print("3. Exit")
+def basic_statistics_head():
+    print("")
+    print("1. Basic statistics & slicing")
+    print("")
+
+def days_range(data):
+    range_days_input = input("Enter the days range (format of the input (8-14, 8 - 14, 8 to 14)): ")
+
+    range_days_replace = range_days_input.replace(" ", "").lower()
+
+    if "to" in range_days_replace:
+        range_days_split = range_days_replace.split('to')
+    elif "-" in range_days_replace:
+        range_days_split = range_days_replace.split('-')
+    else:
+        raise ValueError("Format is not correct. Use 'A-B' or 'A to B'.")
 
     try:
-        choice = int(input("Enter your choice: "))
-
-        if choice == 1:
-            try:
-                day = int(input("Enter the day number: "))
-
-                if day not in array_data[:, day_col]:
-                    print(f"Day {day} is not valid.")
-                    continue
-
-                mask = array_data[:, day_col] == day
-                day_value = array_data[mask, label_map['Day']]
-                step_value = array_data[mask, label_map['Steps']]
-
-                print(
-                    f"On {array_labels[label_map['Day']].lower()} {int(day_value[0])}, you walked {int(step_value[0])}"
-                    f" {array_labels[label_map['Steps']].lower()}")
-            except ValueError:
-                print("Invalid input.")
-        elif choice == 2:
-            try:
-                range_days_input = input("Enter the days range (format of the input (8-14, 8 - 14, 8 to 14)): ")
-
-                range_days_replace = range_days_input.replace(" ", "").lower()
-
-                if "to" in range_days_replace:
-                    range_days_split = range_days_replace.split('to')
-                elif "-" in range_days_replace:
-                    range_days_split = range_days_replace.split('-')
-                else:
-                    continue
-
-                range_begin = int(range_days_split[0])
-                range_end = int(range_days_split[1])
-
-                if range_begin < 1 or range_end < 1:
-                    print("Numbers should be greater than zero.")
-                    continue
-
-                if range_begin > range_end:
-                    print("Invalid range.")
-                    continue
-
-                if range_end not in array_data[:, day_col]:
-                    print(f"Day {range_end} is not valid.")
-                    continue
-
-                mask = (array_data[:, day_col] >= range_begin) & (array_data[:, day_col] <= range_end)
-                rows = array_data[mask]
-
-                if rows.size == 0:
-                    print("No data found.")
-                    continue
-
-                print("")
-                print("1. Basic statistics & slicing")
-                print("")
-                print("Average (Steps, Workout minutes, Sleep hours):")
-                print("")
-
-                means = rows.mean(axis=0)
-                print(f"{array_labels[steps]}: {means[steps]:.2f}")
-                print(f"{array_labels[workout_minutes]}: {means[workout_minutes]:.2f}")
-                print(f"{array_labels[sleep_hours]}: {means[sleep_hours]:.2f}")
-            except ValueError:
-                print("Invalid input.")
-        elif choice == 3:
-            break
-
+        range_begin = int(range_days_split[0])
+        range_end = int(range_days_split[1])
     except ValueError:
-        print("Invalid choice.")
+        raise ValueError("Numbers should be integers.")
+
+    if range_begin < 1 or range_end < 1:
+        raise ValueError("Numbers should be greater than zero.")
+
+    if range_begin > range_end:
+        raise ValueError("Range begin is greater than range end.")
+
+    if range_end not in data[:, day_col]:
+        raise ValueError(f"Day {range_end} is not valid.")
+
+    masking_data = (data[:, day_col] >= range_begin) & (data[:, day_col] <= range_end)
+
+    return data[masking_data]
+
+while True:
+    print("Application")
+    print("===========")
+    print("1. Enter the day number to get the details")
+    print("2. Check the average steps, workout minutes, sleep hours")
+    print("3. Check the min and max of steps, workout minutes, sleep hours")
+    print("4. Exit")
+
+    choice = int(input("Enter your choice: "))
+
+    if choice == 1:
+        try:
+            day = int(input("Enter the day number: "))
+
+            if day not in array_data[:, day_col]:
+                raise ValueError(f"Day {day} is not valid.")
+
+            mask = array_data[:, day_col] == day
+            day_value = array_data[mask, label_map['Day']]
+            step_value = array_data[mask, label_map['Steps']]
+
+            print(f"On {array_labels[label_map['Day']].lower()} {int(day_value[0])}, you walked {int(step_value[0])}"
+                  f" {array_labels[label_map['Steps']].lower()}")
+        except ValueError as e:
+            print(str(e))
+    elif choice == 2:
+        try:
+            rows = days_range(array_data)
+            if rows.size == 0:
+                raise ValueError("Rows not found.")
+
+            basic_statistics_head()
+            print("a) Average (Steps, Workout minutes, Sleep hours):")
+            print("")
+
+            means = rows.mean(axis=0)
+            print(f"{array_labels[steps]}: {means[steps]:.2f}")
+            print(f"{array_labels[workout_minutes]}: {means[workout_minutes]:.2f}")
+            print(f"{array_labels[sleep_hours]}: {means[sleep_hours]:.2f}")
+            print("")
+        except ValueError as e:
+            print(str(e))
+    elif choice == 3:
+        try:
+            rows = days_range(array_data)
+            if rows.size == 0:
+                raise ValueError("Rows not found.")
+
+            basic_statistics_head()
+            print("b) Min and max (Steps, Workout minutes, Sleep hours):")
+            print("")
+
+            min_rows = rows.min(axis=0)
+            max_rows = rows.max(axis=0)
+            print(f"{array_labels[steps]} - Min: {min_rows[steps]:.2f}, Max: {max_rows[steps]:.2f}")
+            print(f"{array_labels[workout_minutes]} - Min: {min_rows[workout_minutes]:.2f}, Max: {max_rows[workout_minutes]:.2f}")
+            print(f"{array_labels[sleep_hours]} - Min: {min_rows[sleep_hours]:.2f}, Max: {max_rows[sleep_hours]:.2f}")
+        except ValueError as e:
+            print(str(e))
+    elif choice == 4:
+        break
