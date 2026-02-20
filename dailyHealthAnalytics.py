@@ -2,7 +2,7 @@ import numpy as np
 
 np.set_printoptions(precision=2, suppress=True)
 
-array_labels = np.array(["Day", "Steps", "Workout_Minutes", "Avg_Heart_Rate", "Sleep_Hours", "Bodyweight_kg"])
+array_labels = np.array(["Day", "Steps", "WorkoutMinutes", "AvgHeartRate", "SleepHours", "Bodyweight(kg)"])
 
 array_data = np.array([
     [4, 10500, 50, 126, 7.2, 81.2],
@@ -24,12 +24,13 @@ array_data = np.array([
 label_map = {label: i for i, label in enumerate(array_labels)}
 day_col = label_map['Day']
 steps = label_map['Steps']
-workout_minutes = label_map['Workout_Minutes']
-sleep_hours = label_map['Sleep_Hours']
+workout_minutes = label_map['WorkoutMinutes']
+sleep_hours = label_map['SleepHours']
 
 def basic_statistics_head():
     print("")
-    print("1. Basic statistics & slicing")
+    print("Basic statistics & Performance Metrics")
+    print("--------------------------------------")
     print("")
 
 def days_range(data):
@@ -69,7 +70,8 @@ while True:
     print("1. Enter the day number to get the details")
     print("2. Check the average steps, workout minutes, sleep hours")
     print("3. Check the min and max of steps, workout minutes, sleep hours")
-    print("4. Exit")
+    print("4. Analysis of the daily health")
+    print("5. Exit")
 
     choice = int(input("Enter your choice: "))
 
@@ -95,7 +97,7 @@ while True:
                 raise ValueError("Rows not found.")
 
             basic_statistics_head()
-            print("a) Average (Steps, Workout minutes, Sleep hours):")
+            print("Average (Steps, Workout minutes, Sleep hours):")
             print("")
 
             means = rows.mean(axis=0)
@@ -112,7 +114,7 @@ while True:
                 raise ValueError("Rows not found.")
 
             basic_statistics_head()
-            print("b) Min and max (Steps, Workout minutes, Sleep hours):")
+            print("Min and max (Steps, Workout minutes, Sleep hours):")
             print("")
 
             min_rows = rows.min(axis=0)
@@ -123,4 +125,25 @@ while True:
         except ValueError as e:
             print(str(e))
     elif choice == 4:
+        basic_statistics_head()
+        print("Analysis of the daily health:")
+        user_input_label = int(input("Choose label (1. Sleep hours, 2. Workout minutes): "))
+
+        if user_input_label == 1:
+            user_input_to_check_average = float(input("Enter the sleep hours: "))
+        elif user_input_label == 2:
+            user_input_to_check_average = float(input("Enter the workout minutes: "))
+        else:
+            raise ValueError("Label not found.")
+
+        user_input_operator = int(input("Choose operator (1. <, 2. >, 3. <=, 4. >=): "))
+
+        #if user_input_to_check_average < array_data[:, user_input_to_check_average]:
+        print(user_input_to_check_average)
+        print(array_data[:, user_input_to_check_average])
+
+
+        #TODO: Select all days where: Sleep < 6 hours, Workout minutes ≥ 45 from those days, get the average heart rate and steps.
+        #TODO: Check the boolean masks and applying them to 2-D arrays.
+    elif choice == 5:
         break
