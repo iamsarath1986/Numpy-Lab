@@ -1,4 +1,5 @@
 import numpy as np
+import operator
 
 np.set_printoptions(precision=2, suppress=True)
 
@@ -125,25 +126,41 @@ while True:
         except ValueError as e:
             print(str(e))
     elif choice == 4:
-        basic_statistics_head()
-        print("Analysis of the daily health:")
-        user_input_label = int(input("Choose label (1. Sleep hours, 2. Workout minutes): "))
+        try:
+            basic_statistics_head()
+            print("Analysis of the daily health:")
+            user_input_label = int(input("Choose label (1. Sleep hours, 2. Workout minutes): "))
 
-        if user_input_label == 1:
-            user_input_to_check_average = float(input("Enter the sleep hours: "))
-        elif user_input_label == 2:
-            user_input_to_check_average = float(input("Enter the workout minutes: "))
-        else:
-            raise ValueError("Label not found.")
+            if user_input_label not in [1, 2]:
+                raise ValueError("Label not found.")
 
-        user_input_operator = int(input("Choose operator (1. <, 2. >, 3. <=, 4. >=): "))
+            if user_input_label == 1:
+                user_input_of_sleeping_hours = float(input("Enter the sleep hours: "))
+                user_input_operator = input("Choose operator (<, >, <=, >=): ")
+                operator_map = {
+                    "<": operator.lt,
+                    ">": operator.gt,
+                    "<=": operator.le,
+                    ">=": operator.ge
+                }
+                if user_input_operator not in operator_map:
+                    raise ValueError("Operator not found.")
 
-        #if user_input_to_check_average < array_data[:, user_input_to_check_average]:
-        print(user_input_to_check_average)
-        print(array_data[:, user_input_to_check_average])
+                op_func = operator_map[user_input_operator]
+                mask = op_func(array_data[:, sleep_hours], user_input_of_sleeping_hours)
 
+                if not np.any(mask):
+                    print("No data found.")
+                else:
+                    hours_slept = array_data[mask, sleep_hours]
+                    days_slept = array_data[mask, day_col].astype(int)
 
-        #TODO: Select all days where: Sleep < 6 hours, Workout minutes ≥ 45 from those days, get the average heart rate and steps.
-        #TODO: Check the boolean masks and applying them to 2-D arrays.
+                    for sleep, day in zip(hours_slept, days_slept):
+                        print(f"You slept {sleep} hours on day {day}.")
+
+            # TODO: Select all days where: Sleep < 6 hours, Workout minutes ≥ 45 from those days, get the average heart rate and steps.
+            # TODO: Check the boolean masks and applying them to 2-D arrays.
+        except ValueError as e:
+            print(str(e))
     elif choice == 5:
         break
