@@ -27,6 +27,19 @@ day_col = label_map['Day']
 steps = label_map['Steps']
 workout_minutes = label_map['WorkoutMinutes']
 sleep_hours = label_map['SleepHours']
+avg_heart_rate = label_map['AvgHeartRate']
+
+def operator_map(operator_str):
+    if operator_str == "<":
+        return operator.lt
+    elif operator_str == ">":
+        return operator.gt
+    elif operator_str == "<=":
+        return operator.le
+    elif operator_str == ">=":
+        return operator.ge
+    else:
+        raise ValueError("Operator not found.")
 
 def basic_statistics_head():
     print("")
@@ -72,6 +85,7 @@ while True:
     print("2. Check the average steps, workout minutes, sleep hours")
     print("3. Check the min and max of steps, workout minutes, sleep hours")
     print("4. Analysis of the daily health")
+    print("5. Correlation analysis")
     print("5. Exit")
 
     choice = int(input("Enter your choice: "))
@@ -137,16 +151,7 @@ while True:
             if user_input_label == 1:
                 user_input_of_sleeping_hours = float(input("Enter the sleep hours: "))
                 user_input_operator = input("Choose operator (<, >, <=, >=): ")
-                operator_map = {
-                    "<": operator.lt,
-                    ">": operator.gt,
-                    "<=": operator.le,
-                    ">=": operator.ge
-                }
-                if user_input_operator not in operator_map:
-                    raise ValueError("Operator not found.")
-
-                op_func = operator_map[user_input_operator]
+                op_func = operator_map(user_input_operator)
                 mask = op_func(array_data[:, sleep_hours], user_input_of_sleeping_hours)
 
                 if not np.any(mask):
@@ -158,9 +163,56 @@ while True:
                     for sleep, day in zip(hours_slept, days_slept):
                         print(f"You slept {sleep} hours on day {day}.")
 
-            # TODO: Select all days where: Sleep < 6 hours, Workout minutes ≥ 45 from those days, get the average heart rate and steps.
-            # TODO: Check the boolean masks and applying them to 2-D arrays.
+            if user_input_label == 2:
+                user_input_of_workout_minutes = float(input("Enter the workout minutes: "))
+                user_input_operator = input("Choose operator (<, >, <=, >=): ")
+                op_func = operator_map(user_input_operator)
+                mask = op_func(array_data[:, workout_minutes], user_input_of_workout_minutes)
+
+                if not np.any(mask):
+                    print("No data found.")
+                else:
+                    days_workout = array_data[mask, day_col].astype(int)
+                    heart_rate = array_data[mask, avg_heart_rate]
+                    steps = array_data[mask, steps]
+
+                    for day, hr, st in zip(days_workout, heart_rate, steps):
+                        print(f"On day {day}, you exercised for {hr} heart rate and {st} steps.")
+
+                    print(f"Average heart rate: {heart_rate.mean():.2f}")
         except ValueError as e:
             print(str(e))
+    elif choice == 5:
+        try:
+            print("Correlation analysis:")
+            user_input_label = int(input("Choose label (1. Sleep hours and average workout heart rate, 2. Sleep hours and workout minutes, 3. Workout minutes and steps): "))
+            if user_input_label not in [1, 2, 3]:
+                raise ValueError("Label not found.")
+
+            if user_input_label == 1:
+                print("This explores if your sleep quality affects your cardiovascular strain during exercise.")
+                sleep = array_data[:, sleep_hours]
+                heart_rate = array_data[:, avg_heart_rate]
+                correlation = np.corrcoef(sleep, heart_rate)[0, 1]
+            elif user_input_label == 2:
+                print("This checks if your energy levels (from sleep) influence how long you can work out.")
+            elif user_input_label == 3:
+                print("This is usually a very strong positive correlation, as walking is often part of the workout.")
+
+        except ValueError as e:
+            print(str(e))
+
+        # TODO: 3. Correlation exploration
+        #
+        # Compute correlations between:
+        #
+        # Sleep hours and average workout heart rate
+        #
+        # Sleep hours and workout minutes
+        #
+        # Workout minutes and steps
+        #
+        # Interpret: on days with more sleep, do you tend to work out longer or at higher intensity?.
+
     elif choice == 5:
         break
