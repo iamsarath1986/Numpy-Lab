@@ -29,6 +29,27 @@ workout_minutes = label_map['WorkoutMinutes']
 sleep_hours = label_map['SleepHours']
 avg_heart_rate = label_map['AvgHeartRate']
 
+def describe_correlation(col1, col2, label1, label2):
+    data1 = array_data[:, col1]
+    data2 = array_data[:, col2]
+    corr_value = np.corrcoef(data1, data2)[0, 1]
+
+    if corr_value >= 0.7:
+        print(
+            f"The correlation coefficient is {corr_value:.2f}. This indicates a strong positive relationship between {label1} and {label2}.")
+    elif corr_value > 0.3:
+        print(
+            f"The correlation coefficient is {corr_value:.2f}. This indicates a positive relationship between {label1} and {label2}.")
+    elif corr_value > -0.3:
+        print(
+            f"The correlation coefficient is {corr_value:.2f}. This indicates little or no linear relationship between {label1} and {label2}.")
+    elif corr_value > -0.7:
+        print(
+            f"The correlation coefficient is {corr_value:.2f}. This indicates a negative relationship between {label1} and {label2}.")
+    else:
+        print(
+            f"The correlation coefficient is {corr_value:.2f}. This indicates a strong negative relationship between {label1} and {label2}.")
+
 def operator_map(operator_str):
     if operator_str == "<":
         return operator.lt
@@ -86,7 +107,7 @@ while True:
     print("3. Check the min and max of steps, workout minutes, sleep hours")
     print("4. Analysis of the daily health")
     print("5. Correlation analysis")
-    print("5. Exit")
+    print("6. Exit")
 
     choice = int(input("Enter your choice: "))
 
@@ -143,7 +164,7 @@ while True:
         try:
             basic_statistics_head()
             print("Analysis of the daily health:")
-            user_input_label = int(input("Choose label (1. Sleep hours, 2. Workout minutes): "))
+            user_input_label = int(input("Choose an analysis pair (1. Sleep hours, 2. Workout minutes): "))
 
             if user_input_label not in [1, 2]:
                 raise ValueError("Label not found.")
@@ -184,35 +205,26 @@ while True:
             print(str(e))
     elif choice == 5:
         try:
-            print("Correlation analysis:")
-            user_input_label = int(input("Choose label (1. Sleep hours and average workout heart rate, 2. Sleep hours and workout minutes, 3. Workout minutes and steps): "))
+            print("Choose a correlation pair:")
+            print("1. Sleep hours and average workout heart rate")
+            print("2. Sleep hours and workout minutes")
+            print("3. Workout minutes and steps")
+            user_input_label = int(input("Enter your choice: "))
             if user_input_label not in [1, 2, 3]:
                 raise ValueError("Label not found.")
 
             if user_input_label == 1:
-                print("This explores if your sleep quality affects your cardiovascular strain during exercise.")
-                sleep = array_data[:, sleep_hours]
-                heart_rate = array_data[:, avg_heart_rate]
-                correlation = np.corrcoef(sleep, heart_rate)[0, 1]
+                print("This explores the correlation between sleep hours and average workout heart rate.")
+                describe_correlation(sleep_hours, avg_heart_rate, "sleep hours", "average workout heart rate")
             elif user_input_label == 2:
-                print("This checks if your energy levels (from sleep) influence how long you can work out.")
+                print("This shows the relationship between sleep hours and workout minutes.")
+                describe_correlation(sleep_hours, workout_minutes, "sleep hours", "workout minutes")
             elif user_input_label == 3:
-                print("This is usually a very strong positive correlation, as walking is often part of the workout.")
+                print("This explores the correlation between workout minutes and steps.")
+                describe_correlation(workout_minutes, steps, "workout minutes", "steps")
 
         except ValueError as e:
             print(str(e))
 
-        # TODO: 3. Correlation exploration
-        #
-        # Compute correlations between:
-        #
-        # Sleep hours and average workout heart rate
-        #
-        # Sleep hours and workout minutes
-        #
-        # Workout minutes and steps
-        #
-        # Interpret: on days with more sleep, do you tend to work out longer or at higher intensity?.
-
-    elif choice == 5:
+    elif choice == 6:
         break
